@@ -1,0 +1,11 @@
+package net.h2.web.mob.file.site;
+
+import net.h2.web.core.base.server.dao.BaseDaoImpl;
+
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class SiteFileDaoImpl extends BaseDaoImpl<SiteFilesEntity, Long>
+		implements ISiteFileDAO {
+
+}

@@ -1,0 +1,71 @@
+package net.h2.web.mob.file.page.controller;
+
+import java.io.IOException;
+import java.util.Date;
+import java.util.Iterator;
+
+import net.h2.web.core.base.exception.BaseServerBusinessException;
+import net.h2.web.mob.file.page.IMainPageFileUploadAPI;
+import net.h2.web.mob.file.page.MainPageFileEntity;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+
+@RestController
+@RequestMapping("/file/mainpage")
+public class MainPageFileUploadController {
+	
+	Logger logger = LoggerFactory.getLogger(MainPageFileUploadController.class);
+	@Autowired
+	IMainPageFileUploadAPI siteFileService;
+	
+	@ResponseBody
+	@RequestMapping(value = "/upload",  method = RequestMethod.POST)
+	public ResponseEntity uploadFile(MultipartHttpServletRequest request) throws IOException, BaseServerBusinessException {		
+
+			Iterator<String> itr = request.getFileNames();
+
+			while (itr.hasNext()) {
+				String uploadedFile = itr.next();
+				MultipartFile file = request.getFile(uploadedFile);
+				String mimeType = file.getContentType();
+				String filename = file.getOriginalFilename();
+				byte[] fileContent = file.getBytes();
+				
+				MainPageFileEntity mainPageFileEntity = new MainPageFileEntity();
+				mainPageFileEntity.setTitle(filename);
+				mainPageFileEntity.setFileExtension(mimeType);
+				mainPageFileEntity.setPhoto(fileContent);
+				mainPageFileEntity.setCreatedDate(new Date());
+				mainPageFileEntity.setFileSize(fileContent.length / 1024);
+				
+				siteFileService.save(mainPageFileEntity);
+				
+			}
+			return new ResponseEntity<>("{}", HttpStatus.OK);
+		
+	}
+	
+	
+	@ExceptionHandler({Exception.class})
+	public ResponseEntity<String> errorHandler(Exception exc) {
+		logger.error(exc.getMessage(), exc);
+		if (exc instanceof BaseServerBusinessException) {
+			String exceptionCode = ((BaseServerBusinessException) exc).getExceptionCode();
+			String exceptionMsg = ((BaseServerBusinessException) exc).getExceptionCode();
+			return new ResponseEntity<>(exceptionCode + ":" + exceptionMsg, HttpStatus.INTERNAL_SERVER_ERROR);
+		}		
+		else			
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+	}
+}

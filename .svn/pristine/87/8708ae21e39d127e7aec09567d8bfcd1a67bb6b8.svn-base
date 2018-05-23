@@ -1,0 +1,45 @@
+package net.h2.web.mob.mainpage;
+
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import net.h2.web.core.base.shared.service.BaseServiceImpl;
+import net.h2.web.core.utils.Base64EncodeDecode;
+import net.h2.web.mob.mainpage.enums.MainPageType;
+
+@Service
+public class MainPageServiceImpl extends BaseServiceImpl<MainPageDTO, MainPageEntity, Long, IMainPageAPI>
+		implements IMainPageService {
+
+	@Override
+	public List<MainPageDTO> getMainPageListByType(MainPageType type) {
+		List<MainPageEntity> list = api.getMainPageListByType(type);
+		List<MainPageDTO> dtos = new ArrayList<MainPageDTO>();
+
+		if (list != null && !list.isEmpty()) {
+
+			for (MainPageEntity entity : list) {
+				MainPageDTO dto = convertEntityToDTO(entity);
+				dtos.add(dto);
+			}
+
+		}
+		return dtos;
+	}
+
+	@Override
+	protected MainPageDTO convertEntityToDTO(MainPageEntity entity) {
+		MainPageDTO dto = super.convertEntityToDTO(entity);
+		try {
+			dto.setPhotoStr(
+					"data:image/png;base64," + Base64EncodeDecode.convertByteArrayToBase64String(entity.getPhoto()));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return dto;
+	}
+
+}

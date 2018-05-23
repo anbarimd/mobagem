@@ -1,0 +1,16 @@
+package net.h2.web.mob.file.site.enums;
+
+public enum SiteFileTypeStatus {
+
+	HOME(0), MOSABEGHE(1), PAYMENT(2), ABOUT(3);
+	private final int value;
+
+	private SiteFileTypeStatus(int value) {
+		this.value = value;
+	}
+
+	public int getValue() {
+		return value;
+	}
+
+}

@@ -1,0 +1,118 @@
+package net.h2.web.mob.file.site;
+
+import java.util.Date;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+
+import net.h2.web.core.base.server.entity.BaseEntity;
+import net.h2.web.mob.file.site.enums.SiteFilePositionStatus;
+import net.h2.web.mob.file.site.enums.SiteFileTypeStatus;
+
+@Entity
+@Table(name = "MOB_SITE_FILES")
+public class SiteFilesEntity extends BaseEntity<Long> {
+
+	private String fileName;
+	private String filePath;
+	private Long fileSize;
+	private String fileExtension;
+	private byte[] file;
+	private SiteFileTypeStatus siteFileTypeStatus;
+	private SiteFilePositionStatus siteFilePositionStatus;
+	private Date createdDate;
+
+	@Override
+	@Id
+	@GeneratedValue
+	public Long getId() {
+		return super.getId();
+	}
+
+	@Override
+	public void setId(Long id) {
+		super.setId(id);
+	}
+
+	@Column(name = "SIF_FILE_NAME")
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
+
+	@Column(name = "SIF_FILE_PATH",unique = true)
+	public String getFilePath() {
+		return filePath;
+	}
+
+	public void setFilePath(String filePath) {
+		this.filePath = filePath;
+	}
+
+	@Column(name = "SIF_FILE_SIZE")
+	public Long getFileSize() {
+		return fileSize;
+	}
+
+	public void setFileSize(Long fileSize) {
+		this.fileSize = fileSize;
+	}	
+
+	@Lob
+	@Column(name = "SIF_FILE" ,length = Integer.MAX_VALUE)
+	public byte[] getFile() {
+		return file;
+	}
+
+	public void setFile(byte[] file) {
+		this.file = file;
+	}
+
+	@Column(name = "SIF_FILESITE_POS")
+	@Enumerated(EnumType.STRING)
+	public SiteFileTypeStatus getSiteFileTypeStatus() {
+		return siteFileTypeStatus;
+	}
+
+	public void setSiteFileTypeStatus(SiteFileTypeStatus siteFileTypeStatus) {
+		this.siteFileTypeStatus = siteFileTypeStatus;
+	}
+
+	@Column(name = "SIF_FILESITE_TYPE")
+	@Enumerated(EnumType.STRING)
+	public SiteFilePositionStatus getSiteFilePositionStatus() {
+		return siteFilePositionStatus;
+	}
+
+	public void setSiteFilePositionStatus(SiteFilePositionStatus siteFilePositionStatus) {
+		this.siteFilePositionStatus = siteFilePositionStatus;
+	}
+
+	@Column(name = "SIF_CREATED_DATE")
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	@Column(name = "SIF_FILE_EXT")
+	public String getFileExtension() {
+		return fileExtension;
+	}
+
+	public void setFileExtension(String fileExtension) {
+		this.fileExtension = fileExtension;
+	}
+
+}

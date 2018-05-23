@@ -1,0 +1,12 @@
+package net.h2.web.mob.mainpage;
+
+import java.util.List;
+
+import net.h2.web.core.base.server.api.IBaseAPI;
+import net.h2.web.mob.mainpage.enums.MainPageType;
+
+public interface IMainPageAPI extends IBaseAPI<MainPageEntity, Long> {
+	
+	List<MainPageEntity> getMainPageListByType(MainPageType type);
+
+}

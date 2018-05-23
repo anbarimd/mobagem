@@ -1,0 +1,90 @@
+package net.h2.web.mob.mainpage.controller;
+
+import java.io.IOException;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
+import net.h2.web.core.base.exception.BaseServerBusinessException;
+import net.h2.web.mob.file.page.MainPageFileDTO;
+import net.h2.web.mob.mainpage.IMainPageService;
+import net.h2.web.mob.mainpage.enums.MainPageType;
+
+import org.apache.http.client.ClientProtocolException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/mainpage")
+public class MainPageController {
+
+	private static final String APP_JSON = "application/json;charset=UTF-8";
+
+	@Autowired
+	private IMainPageService service;
+
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@RequestMapping(value = "/getSliders", method = RequestMethod.GET, produces = APP_JSON)
+	public List<MainPageFileDTO> getSliders(HttpServletRequest request)
+			throws BaseServerBusinessException, ClientProtocolException, IOException, InterruptedException {
+		return service.getMainPageListByType(MainPageType.SLIDER);
+	}
+
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@RequestMapping(value = "/getHotGames", method = RequestMethod.GET, produces = APP_JSON)
+	public List<MainPageFileDTO> getHotGames(HttpServletRequest request)
+			throws BaseServerBusinessException, ClientProtocolException, IOException, InterruptedException {
+		return service.getMainPageListByType(MainPageType.HOTGAME);
+	}
+
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@RequestMapping(value = "/getServices", method = RequestMethod.GET, produces = APP_JSON)
+	public List<MainPageFileDTO> getServices(HttpServletRequest request)
+			throws BaseServerBusinessException, ClientProtocolException, IOException, InterruptedException {
+		return service.getMainPageListByType(MainPageType.SERVICE);
+	}
+	
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@RequestMapping(value = "/getResults", method = RequestMethod.GET, produces = APP_JSON)
+	public List<MainPageFileDTO> getResult(HttpServletRequest request)
+			throws BaseServerBusinessException, ClientProtocolException, IOException, InterruptedException {
+		return service.getMainPageListByType(MainPageType.RESULT);
+	}
+
+	Logger logger = LoggerFactory.getLogger(MainPageController.class);
+
+	@ExceptionHandler({ Exception.class, ClientProtocolException.class, InterruptedException.class })
+	public ResponseEntity<String> errorHandler(Exception exc) {
+		logger.error(exc.getMessage(), exc);
+		if (exc instanceof BaseServerBusinessException) {
+			String exceptionCode = ((BaseServerBusinessException) exc).getExceptionCode();
+			String exceptionMsg = ((BaseServerBusinessException) exc).getExceptionCode();
+			return new ResponseEntity<>(exceptionCode + ":" + exceptionMsg, HttpStatus.INTERNAL_SERVER_ERROR);
+		} else if (exc instanceof ClientProtocolException) {
+			return new ResponseEntity<>("SMS", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		else if (exc instanceof IOException) {
+			return new ResponseEntity<>("SMS", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+
+		else if (exc instanceof IOException) {
+			return new ResponseEntity<>("SMS", HttpStatus.INTERNAL_SERVER_ERROR);
+		} else
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+
+	}
+}

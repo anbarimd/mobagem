@@ -1,0 +1,131 @@
+package net.h2.web.mob.profile;
+
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import net.h2.web.core.base.server.entity.BaseEntity;
+import net.h2.web.mob.credit.CreditEntity;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+@Entity
+@Table(name = "MOB_PROFILE")
+//@Cache(region = "profileCache",usage=CacheConcurrencyStrategy.READ_ONLY)
+public class ProfileEntity extends BaseEntity<Long> {
+
+	private Long mobilePhone;
+	private Boolean isEnable = true;
+	private Date profileCreatedDate = new Date();
+	private Date profileLastModifiedDate = new Date();
+	private Integer confirmCode;
+	private String ticketStr;
+	private List<CreditEntity> credit;
+	private String ipAddress;
+	private Integer smsRequestedCount = 0;
+	
+
+	@Override
+	@Id
+	@GeneratedValue
+	public Long getId() {
+		return super.getId();
+	}
+
+	@Override
+	public void setId(Long id) {
+		super.setId(id);
+	}
+
+	@Column(name = "PROF_MOBILE",unique = true)
+	public Long getMobilePhone() {
+		return mobilePhone;
+	}
+
+	public void setMobilePhone(Long mobilePhone) {
+		this.mobilePhone = mobilePhone;
+	}
+
+	@Column(name = "PROF_IS_ENABLE")
+	public Boolean getIsEnable() {
+		return isEnable;
+	}
+
+	public void setIsEnable(Boolean isEnable) {
+		this.isEnable = isEnable;
+	}
+
+	@Column(name = "PROF_CREATED_DATE")
+	public Date getCreatedDate() {
+		return profileCreatedDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.profileCreatedDate = createdDate;
+	}
+
+	@Column(name = "PROF_LASTMODIFIED_DATE")
+	public Date getLastModified() {
+		return profileLastModifiedDate;
+	}
+
+	public void setLastModified(Date lastModified) {
+		this.profileLastModifiedDate = lastModified;
+	}
+
+	@OneToMany(fetch = FetchType.LAZY)
+	@JoinColumn(name = "FK_PROFILE_ID")
+	public List<CreditEntity> getCredit() {
+		return credit;
+	}
+
+	public void setCredit(List<CreditEntity> credit) {
+		this.credit = credit;
+	}
+
+	@Column(name = "PROF_CONFIRM_CODE")
+	public Integer getConfirmCode() {
+		return confirmCode;
+	}
+
+	public void setConfirmCode(Integer confirmCode) {
+		this.confirmCode = confirmCode;
+	}
+
+	@Column(name = "PROF_TICKET")
+	public String getTicketStr() {
+		return ticketStr;
+	}
+
+	public void setTicketStr(String ticketStr) {
+		this.ticketStr = ticketStr;
+	}
+
+	@Column(name = "PROF_SMS_REQ_COUNT")
+	public Integer getSmsRequestedCoubt() {
+		return smsRequestedCount;
+	}
+
+	public void setSmsRequestedCoubt(Integer smsRequestedCoubt) {
+		this.smsRequestedCount = smsRequestedCoubt;
+	}
+
+	@Column(name = "PROF_IP_ADDRESS")
+	public String getIpAddress() {
+		return ipAddress;
+	}
+
+	public void setIpAddress(String ipAddress) {
+		this.ipAddress = ipAddress;
+	}
+
+}

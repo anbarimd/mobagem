@@ -1,0 +1,7 @@
+package net.h2.web.mob.file.site;
+
+import net.h2.web.core.base.server.dao.IBaseDAO;
+
+public interface ISiteFileDAO extends IBaseDAO<SiteFilesEntity, Long> {
+
+}

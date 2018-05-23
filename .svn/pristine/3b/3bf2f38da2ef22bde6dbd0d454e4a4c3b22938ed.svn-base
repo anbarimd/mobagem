@@ -1,0 +1,20 @@
+package net.h2.web.mob.mainpage;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import net.h2.web.core.base.server.api.BaseApiImpl;
+import net.h2.web.mob.mainpage.enums.MainPageType;
+
+@Service
+public class MainPageAPI extends BaseApiImpl<MainPageEntity, Long, IMainPageDAO> implements IMainPageAPI {
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<MainPageEntity> getMainPageListByType(MainPageType type) {
+		return dao.getMainPageListByType(type);
+	}
+
+}

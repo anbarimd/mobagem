@@ -1,0 +1,145 @@
+package net.h2.web.core.base.server.dao;
+
+import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.util.List;
+
+import net.h2.web.core.base.server.entity.BaseEntity;
+import net.h2.web.core.base.shared.datatable.resolver.DataTablePagingCriteria;
+import net.h2.web.core.base.shared.datatable.resultset.DataTableResultSet;
+import net.h2.web.core.base.shared.paging.SortDirection;
+import net.h2.web.core.base.shared.paging.SortField;
+
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.CriteriaSpecification;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Example;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.springframework.beans.factory.annotation.Autowired;
+
+public class BaseDaoImpl<E extends BaseEntity<Id>, Id extends Serializable>
+		implements IBaseDAO<E, Id> {
+
+	protected Class<E> entityClass;
+	@Autowired
+	private SessionFactory sessionFactory;
+
+	protected Session getCurrentSession() {
+		return sessionFactory.getCurrentSession();
+	}
+
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
+
+	@SuppressWarnings("unchecked")
+	public BaseDaoImpl() {
+		if (getClass().getGenericSuperclass() instanceof ParameterizedType) {
+			ParameterizedType genericSuperclass = (ParameterizedType) getClass()
+					.getGenericSuperclass();
+			if (genericSuperclass != null
+					&& genericSuperclass.getActualTypeArguments() != null
+					&& genericSuperclass.getActualTypeArguments().length > 0) {
+				if (genericSuperclass.getActualTypeArguments()[0] instanceof Class) {
+					entityClass = (Class<E>) genericSuperclass
+							.getActualTypeArguments()[0];
+				}
+			}
+		}
+	}
+	
+	protected Criteria getCriteriaFromDetachedCriteria(
+			DetachedCriteria detCriteria) {
+		Session currentSession = getCurrentSession();
+		return detCriteria.getExecutableCriteria(currentSession);
+	}
+
+	
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Id save(E entity) {
+		Session currentSession = getCurrentSession();
+		Serializable id = currentSession.save(entity);
+		currentSession.flush();
+		return (Id) id;
+	}
+
+	@Override
+	public void delete(E entity) {
+		Session currentSession = getCurrentSession();
+		currentSession.delete(entity);
+		currentSession.flush();
+
+	}
+	
+	@Override
+	public void delete(Id id) {
+		E object = findById(id);
+		delete(object);
+		
+	}
+
+	@Override
+	public void update(E entity) {
+		Session currentSession = getCurrentSession();
+		currentSession.update(entity);
+		currentSession.flush();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public E findById(Id id) {
+		Session currentSession = getCurrentSession();
+		Object object = currentSession.get(entityClass, id);
+		return (E) object;
+	}
+	
+
+	@Override
+	public Long countAll() {
+		DetachedCriteria detachedCriteria = DetachedCriteria.forClass(entityClass);
+		detachedCriteria.setProjection(Projections.rowCount());
+		Criteria criteria = getCriteriaFromDetachedCriteria(detachedCriteria);
+		Number uniqueResult = (Number) criteria.uniqueResult();
+		if (uniqueResult == null) {
+			return 0L;
+		}
+		return uniqueResult.longValue();
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<E> searchByExample(E example) {
+		Example exe = Example.create(example);
+	    Session currentSession = getCurrentSession();
+	    Criteria criteria = currentSession.createCriteria(entityClass).add(exe);
+	    List<?> list = criteria.list();
+	    return (List<E>) list;
+		
+	}
+
+	@Override
+	public List<E> getDataTableSortedPage(DataTablePagingCriteria dataTablePagingCriteria) {
+		DetachedCriteria detachedCriteria = DetachedCriteria.forClass(entityClass);
+		Integer pageNumber = dataTablePagingCriteria.getDisplayStart();
+		Integer pageSize = dataTablePagingCriteria.getDisplaySize();
+		if (dataTablePagingCriteria.getSortFields() == null || dataTablePagingCriteria.getSortFields().isEmpty())
+			detachedCriteria.addOrder(Order.asc("id"));
+		else {
+			SortField sortField = dataTablePagingCriteria.getSortFields().get(0);
+			detachedCriteria.addOrder(sortField.getDirection() == SortDirection.ASC ? Order.asc(sortField.getField()) : Order.desc(sortField.getField()));
+		}
+		detachedCriteria = detachedCriteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+		Criteria criteria = getCriteriaFromDetachedCriteria(detachedCriteria);
+		criteria = criteria.setMaxResults(pageSize);
+		criteria = criteria.setFirstResult(pageNumber * pageSize);
+		List<?> list =  criteria.list();
+		return  (List<E>) list;		
+	}
+
+	
+}

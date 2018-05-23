@@ -1,0 +1,13 @@
+package net.h2.web.mob.file.site;
+
+import org.springframework.stereotype.Service;
+
+import net.h2.web.core.base.server.api.BaseApiImpl;
+
+@Service
+public class SiteFileApiImpl extends BaseApiImpl<SiteFilesEntity, Long, ISiteFileDAO>
+		implements ISiteFileAPI {
+
+
+
+}

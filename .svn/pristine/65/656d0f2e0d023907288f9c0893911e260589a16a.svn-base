@@ -1,0 +1,35 @@
+package net.h2.web.mob.mainpage;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.hibernate.Criteria;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+import org.springframework.stereotype.Repository;
+
+import net.h2.web.core.base.server.dao.BaseDaoImpl;
+import net.h2.web.mob.mainpage.enums.MainPageType;
+
+@Repository
+public class MainPageDAO extends BaseDaoImpl<MainPageEntity, Long> implements IMainPageDAO {
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public List<MainPageEntity> getMainPageListByType(MainPageType type) {
+
+		DetachedCriteria detachedCriteria = DetachedCriteria.forClass(entityClass);
+
+		detachedCriteria.add(Restrictions.eq("type", type));
+
+		detachedCriteria.addOrder(Order.asc("colIndex"));
+
+		Criteria criteria = getCriteriaFromDetachedCriteria(detachedCriteria);
+
+		List list = criteria.list();
+
+		return list == null ? new ArrayList<MainPageEntity>() : list;
+	}
+
+}
